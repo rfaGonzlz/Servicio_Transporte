@@ -11,7 +11,7 @@ public class VehiculoFactory {
             case 2: return new Minivan();// si 2 devuelve Minivan
             default: // si el tipo no es válido, lanzamos IllegalArgumentException
 
-                throw new IllegalArgumentException("Tipo de vehículo no válido");
+                throw new IllegalArgumentException("este tipo de vehículo no valido");
         }
     }
 }

@@ -15,4 +15,5 @@ public class Bus extends Vehiculo {
     public double calcularTarifa() {
         return tarifaBase;
     }
+
 }
