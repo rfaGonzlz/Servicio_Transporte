@@ -1,53 +1,78 @@
 package modelo;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import excepciones.AsientosInsuficientes;
 
 public class Viajes {
 
-    private String id;
+    private Vehiculo vehiculo;
+    private Conductor conductor;
     private String origen;
     private String destino;
-    private Vehiculo vehiculo; // Relación de composición con Vehiculo
-    private Conductor conductor; // Relación de composición con Conductor
-    private List<Cliente> clientes; // Relación de agregación con Cliente
-    private double tarifaBase;
+    private LocalDateTime fechaSalida;
+    private List<Cliente> clientes;
 
-    public Viajes(String id, String origen, String destino, Vehiculo vehiculo, Conductor conductor, double tarifaBase) {
-        this.id = id;
+    public Viajes(Vehiculo vehiculo, String origen, String destino, LocalDateTime fechaSalida, Conductor conductor) {
+        this.vehiculo = vehiculo;
         this.origen = origen;
         this.destino = destino;
-        this.vehiculo = vehiculo;
+        this.fechaSalida = fechaSalida;
         this.conductor = conductor;
         this.clientes = new ArrayList<>();
-        this.tarifaBase = tarifaBase;
     }
 
-    // Métodos para agregar y eliminar clientes
-    public boolean agregarCliente(Cliente cliente) {
+    public void agregarCliente(Cliente cliente) throws AsientosInsuficientes, IllegalArgumentException {
+        for (Cliente cli : clientes) {
+            if (cli.getCedula().equals(cliente.getCedula())) {
+                throw new IllegalArgumentException("Ya existe un cliente con cedula: " + cliente.getCedula());
+            }
+            if (cli.getAsiento() == cliente.getAsiento()) {
+                throw new IllegalArgumentException("El asiento " + cliente.getAsiento() + " ya está ocupado.");
+            }
+        }
         if (clientes.size() < vehiculo.getCapacidad()) {
             clientes.add(cliente);
-            return true;
         } else {
-            return false;
+            throw new AsientosInsuficientes("No hay asientos disponibles.");
         }
     }
 
-    public double calcularCostoPorCliente(){
-        int ocupados = Math.max(1, clientes.size()); // Evitar división por cero
-        return tarifaBase / ocupados;
+    public void eliminarClientePorCedula(String cedula) {
+        clientes.removeIf(cliente -> cliente.getCedula().equals(cedula));
     }
 
-    // Getters
+    // Cambia el tipo de retorno a double para evitar el error de tipos
+    public double calcularIngresos() {
+        return clientes.size() * vehiculo.calcularTarifa();
+    }
 
-    public String getId() {return id;}
-    public List<Cliente> getClientes() {return clientes; }
-    public Vehiculo getVehiculo() {return vehiculo; }
-    public Conductor getConductor() {return conductor; }
+    public List<Cliente> getClientes() {
+        return clientes;
+    }
 
-    @Override
-    public String toString() {
-        return String.format("Viaje ID: %s, Origen: %s, Destino: %s, Vehículo: [%s], Conductor: [%s], Clientes: %d, Tarifa Base: %.2f",
-                id, origen, destino, vehiculo, conductor, clientes.size(), tarifaBase);
+    public Vehiculo getVehiculo() {
+        return vehiculo;
+    }
+
+    public String getOrigen() {
+        return origen;
+    }
+
+    public String getDestino() {
+        return destino;
+    }
+
+    public LocalDateTime getFechaSalida() {
+        return fechaSalida;
+    }
+
+    public Conductor getConductor() {
+        return conductor;
+    }
+
+    public void setConductor(Conductor conductor) {
+        this.conductor = conductor;
     }
 }
