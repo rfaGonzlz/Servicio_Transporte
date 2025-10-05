@@ -1,53 +1,93 @@
+// Paquete donde se encuentra la clase
 package modelo;
 
+// Importación de clases necesarias
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import excepciones.AsientosInsufiientes; // Corrige el nombre de la excepción
 
+// Clase Viajes que representa un viaje en el sistema de transporte
 public class Viajes {
 
-    private String id;
-    private String origen;
-    private String destino;
-    private Vehiculo vehiculo; // Relación de composición con Vehiculo
-    private Conductor conductor; // Relación de composición con Conductor
-    private List<Cliente> clientes; // Relación de agregación con Cliente
-    private double tarifaBase;
+    private Vehiculo vehiculo; // Vehículo asociado al viaje
+    private Conductor conductor; // Conductor asociado al viaje
+    private String origen; //Ciudad de origen del viaje
+    private String destino; // Ciudad de destino del viaje
+    private LocalDateTime fechaSalida; // Fecha y hora de salida del viaje
+    private List<Cliente> clientes; // Lista de clientes que participan en el viaje
 
-    public Viajes(String id, String origen, String destino, Vehiculo vehiculo, Conductor conductor, double tarifaBase) {
-        this.id = id;
+
+    // Constructor de la clase Viajes
+    public Viajes(Vehiculo vehiculo, String origen, String destino, LocalDateTime fechaSalida, Conductor conductor) {
+        this.vehiculo = vehiculo;
         this.origen = origen;
         this.destino = destino;
-        this.vehiculo = vehiculo;
+        this.fechaSalida = fechaSalida;
         this.conductor = conductor;
-        this.clientes = new ArrayList<>();
-        this.tarifaBase = tarifaBase;
+        this.clientes = new ArrayList<>(); // Inicializa la lista de clientes como una lista vacía
     }
 
-    // Métodos para agregar y eliminar clientes
-    public boolean agregarCliente(Cliente cliente) {
-        if (clientes.size() < vehiculo.getCapacidad()) {
-            clientes.add(cliente);
-            return true;
-        } else {
-            return false;
+    // Metodo para agregar un cliente al viaje
+    public void agregarCliente(Cliente cliente) throws AsientosInsufiientes, IllegalArgumentException {
+        for (Cliente cli : clientes) {
+            // Verificar si la cedula ya existe
+            if (cli.getCedula().equals(cliente.getCedula())) {
+                throw new IllegalArgumentException("Ya existe un cliente con cedula: " + cliente.getCedula());
+            }
+            // Verificar si el asiento ya está ocupado
+            if (cli.getAsiento() == cliente.getAsiento()) {
+                throw new IllegalArgumentException("El asiento " + cliente.getAsiento() + " ya está ocupado.");
+            }
+            // Verificar si hay asientos disponibles
+            if (clientes.size() < vehiculo.getCapacidad()) {
+                clientes.add(cliente);
+            } else {
+                throw new AsientosInsufiientes("No hay asientos disponibles.");
+            }
         }
     }
 
-    public double calcularCostoPorCliente(){
-        int ocupados = Math.max(1, clientes.size()); // Evitar división por cero
-        return tarifaBase / ocupados;
+    // Metodo para eliminar un cliente del viaje por su cedula
+    public void eliminarClientePorCedula(String cedula) {
+        clientes.removeIf(cliente -> cliente.getCedula().equals(cedula));
     }
 
-    // Getters
-
-    public String getId() {return id;}
-    public List<Cliente> getClientes() {return clientes; }
-    public Vehiculo getVehiculo() {return vehiculo; }
-    public Conductor getConductor() {return conductor; }
-
-    @Override
-    public String toString() {
-        return String.format("Viaje ID: %s, Origen: %s, Destino: %s, Vehículo: [%s], Conductor: [%s], Clientes: %d, Tarifa Base: %.2f",
-                id, origen, destino, vehiculo, conductor, clientes.size(), tarifaBase);
+    // Metodo para calcular los ingresos totales del viaje
+    public int calcularIngresos() {
+        return clientes.size() * (int) vehiculo.calcularTarifa();
     }
+
+    // Getters para la lista de clientes.
+public List<Cliente> getClientes() {
+    return clientes;}
+}
+// Getters para el vehiculo.
+public Vehiculo getVehiculo() {;
+    return vehiculo;
+}
+
+// Getters para el origen.
+public String getOrigen() {
+    return origen;
+}
+
+// Getters para el destino.
+public String getDestino() {
+    return destino;
+}
+
+// Getters para la fecha de salida.
+public LocalDateTime getFechaSalida() {
+    return fechaSalida;
+}
+
+// Gettsers para el conductor.
+public Conductor getConductor() {
+    return conductor;
+}
+
+// Setters para el conductor.
+public void SetConductor(Conductor conductor) {
+    this.conductor = conductor;
 }
