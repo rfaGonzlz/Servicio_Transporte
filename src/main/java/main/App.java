@@ -5,7 +5,7 @@ import patron_diseno.*;
 
 public class App {
     public static void main(String[] args) {
-        SistemaTransporte sistema = new SistemaTransporte.getInstancia();
+        SistemaTransporte sistema = SistemaTransporte.getInstancia();
 
         int opcion = 0;
 
